@@ -1,9 +1,8 @@
 module Main exposing (..)
 
 import Browser
-import Model exposing (init)
+import Model exposing (Model, Msg, init)
 import Subscriptions exposing (subscriptions)
-import Types exposing (Model, Msg)
 import Update exposing (update)
 import View exposing (view)
 
