@@ -1,7 +1,7 @@
 module Subscriptions exposing (..)
 
 import Material
-import Types exposing (Model, Msg(..))
+import Model exposing (Model, Msg(..))
 
 
 subscriptions : Model -> Sub Msg

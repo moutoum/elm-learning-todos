@@ -9,7 +9,7 @@ import Material.List as Lists
 import Material.Options exposing (css, onClick, onInput, styled)
 import Material.TextField as TextField
 import Material.Typography as Typography
-import Types exposing (Model, Msg(..), Todo)
+import Model exposing (Model, Msg(..), Todo)
 
 
 view : Model -> Html Msg
@@ -68,12 +68,12 @@ viewAddButton model =
 viewTodos : Model -> Html Msg
 viewTodos model =
     model.todos
-        |> List.indexedMap viewTodo
+        |> List.map viewTodo
         |> Lists.ul Mdc "todo-list" model.mdc [ Lists.nonInteractive ]
 
 
-viewTodo : Int -> Todo -> Lists.ListItem Msg
-viewTodo index todo =
+viewTodo : Todo -> Lists.ListItem Msg
+viewTodo todo =
     Lists.li []
         [ Lists.text []
             [ Lists.primaryText [] [ text todo.value ]
@@ -84,5 +84,5 @@ viewTodo index todo =
                     |> text
                 ]
             ]
-        , Lists.metaIcon [ onClick <| RemoveTodo index ] "clear"
+        , Lists.metaIcon [ onClick <| DeleteTodo todo.id ] "clear"
         ]

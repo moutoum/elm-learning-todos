@@ -1,7 +1,7 @@
 module Update exposing (..)
 
 import Material
-import Types exposing (Model, Msg(..), Todo)
+import Model exposing (Model, Msg(..), deleteTodo, getTodos, postTodo)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -13,28 +13,38 @@ update msg model =
         ChangeInput str ->
             ( { model | input = str }, Cmd.none )
 
-        AddTodo ->
-            ( { model
-                | input = ""
-                , todos = model.todos ++ [ Todo 0 model.input ]
-              }
-            , Cmd.none
-            )
-
-        RemoveTodo i ->
-            let
-                before =
-                    List.take i model.todos
-
-                after =
-                    List.drop (i + 1) model.todos
-            in
-            ( { model | todos = before ++ after }, Cmd.none )
-
         ReceiveTodos result ->
             case result of
-                Ok todos ->
-                    ( { model | todos = todos }, Cmd.none )
+                Result.Ok todos ->
+                    ( { model | todos = todos, error = Nothing }, Cmd.none )
 
                 Err _ ->
                     ( { model | error = Just "Cannot fetch todo list" }, Cmd.none )
+
+        AddTodo ->
+            ( { model | input = "" }, postTodo model.input )
+
+        PostedTodo result ->
+            case result of
+                Result.Ok Model.Ok ->
+                    ( { model | error = Nothing }, getTodos )
+
+                Result.Ok (Model.Error text) ->
+                    ( { model | error = Just text }, Cmd.none )
+
+                Err _ ->
+                    ( { model | error = Just "Cannot post this todo" }, Cmd.none )
+
+        DeleteTodo id ->
+            ( model, deleteTodo id )
+
+        DeletedTodo result ->
+            case result of
+                Result.Ok Model.Ok ->
+                    ( { model | error = Nothing }, getTodos )
+
+                Result.Ok (Model.Error text) ->
+                    ( { model | error = Just text }, Cmd.none )
+
+                Err _ ->
+                    ( { model | error = Just "Cannot delete this todo" }, Cmd.none )
