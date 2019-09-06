@@ -1,6 +1,7 @@
 module View exposing (..)
 
 import Html exposing (Html, div, text)
+import Html.Attributes exposing (hidden)
 import Material.Card as Card
 import Material.Fab as Fab
 import Material.LayoutGrid as LayoutGrid
@@ -8,7 +9,7 @@ import Material.List as Lists
 import Material.Options exposing (css, onClick, onInput, styled)
 import Material.TextField as TextField
 import Material.Typography as Typography
-import Types exposing (Model, Msg(..))
+import Types exposing (Model, Msg(..), Todo)
 
 
 view : Model -> Html Msg
@@ -17,6 +18,7 @@ view model =
         [ styled div
             [ css "padding" "1rem" ]
             [ styled Html.h3 [ Typography.title, css "margin" "0" ] [ text "To do list" ]
+            , viewError model.error
             , viewTodos model
             , LayoutGrid.view [ css "padding" "8px" ]
                 [ LayoutGrid.cell [ LayoutGrid.span9 ] [ viewInput model ]
@@ -24,6 +26,16 @@ view model =
                 ]
             ]
         ]
+
+
+viewError : Maybe String -> Html Msg
+viewError error =
+    case error of
+        Just err ->
+            styled div [ css "color" "red" ] [ text err ]
+
+        Nothing ->
+            Html.span [ hidden True ] []
 
 
 viewInput : Model -> Html Msg
@@ -60,13 +72,13 @@ viewTodos model =
         |> Lists.ul Mdc "todo-list" model.mdc [ Lists.nonInteractive ]
 
 
-viewTodo : Int -> String -> Lists.ListItem Msg
-viewTodo index value =
+viewTodo : Int -> Todo -> Lists.ListItem Msg
+viewTodo index todo =
     Lists.li []
         [ Lists.text []
-            [ Lists.primaryText [] [ text value ]
+            [ Lists.primaryText [] [ text todo.value ]
             , Lists.secondaryText []
-                [ index
+                [ todo.id
                     |> String.fromInt
                     |> (++) "Item #"
                     |> text

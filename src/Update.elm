@@ -1,7 +1,7 @@
 module Update exposing (..)
 
 import Material
-import Types exposing (Model, Msg(..))
+import Types exposing (Model, Msg(..), Todo)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -16,7 +16,7 @@ update msg model =
         AddTodo ->
             ( { model
                 | input = ""
-                , todos = model.todos ++ [ model.input ]
+                , todos = model.todos ++ [ Todo 0 model.input ]
               }
             , Cmd.none
             )
@@ -30,3 +30,11 @@ update msg model =
                     List.drop (i + 1) model.todos
             in
             ( { model | todos = before ++ after }, Cmd.none )
+
+        ReceiveTodos result ->
+            case result of
+                Ok todos ->
+                    ( { model | todos = todos }, Cmd.none )
+
+                Err _ ->
+                    ( { model | error = Just "Cannot fetch todo list" }, Cmd.none )
