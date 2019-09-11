@@ -1,7 +1,7 @@
 module Update exposing (..)
 
 import Material
-import Model exposing (Model, Msg(..), deleteTodo, getTodos, postTodo)
+import Model exposing (Model, Msg(..), deleteTodo, getTodo, postTodo)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -12,6 +12,14 @@ update msg model =
 
         ChangeInput str ->
             ( { model | input = str }, Cmd.none )
+
+        ReceiveTodo result ->
+            case result of
+                Result.Ok todo ->
+                    ( { model | todos = model.todos ++ [ todo ], error = Nothing }, Cmd.none )
+
+                Err _ ->
+                    ( { model | error = Just "Cannot fetch todo" }, Cmd.none )
 
         ReceiveTodos result ->
             case result of
@@ -26,11 +34,8 @@ update msg model =
 
         PostedTodo result ->
             case result of
-                Result.Ok Model.Ok ->
-                    ( { model | error = Nothing }, getTodos )
-
-                Result.Ok (Model.Error text) ->
-                    ( { model | error = Just text }, Cmd.none )
+                Result.Ok id ->
+                    ( { model | error = Nothing }, getTodo id )
 
                 Err _ ->
                     ( { model | error = Just "Cannot post this todo" }, Cmd.none )
@@ -40,11 +45,15 @@ update msg model =
 
         DeletedTodo result ->
             case result of
-                Result.Ok Model.Ok ->
-                    ( { model | error = Nothing }, getTodos )
-
-                Result.Ok (Model.Error text) ->
-                    ( { model | error = Just text }, Cmd.none )
+                Result.Ok id ->
+                    ( { model
+                        -- Remove the current id from the list
+                        -- List.filter (\todo -> todo.id /= id) model.todos
+                        | todos = (List.filter <| .id >> (/=) id) model.todos
+                        , error = Nothing
+                      }
+                    , Cmd.none
+                    )
 
                 Err _ ->
                     ( { model | error = Just "Cannot delete this todo" }, Cmd.none )
